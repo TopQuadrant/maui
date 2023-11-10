@@ -11,14 +11,6 @@ public class SpanishStemmer extends Stemmer {
 
     private static final long serialVersionUID = 1L;
 
-    private SpanishStemmerSB stemmer = new SpanishStemmerSB();
-
-    public String stemSB(String str) {
-        stemmer.setCurrent(str);
-        stemmer.stem();
-        return stemmer.getCurrent();
-    }
-
     /*  Spanish stemmer tring to remove inflectional suffixes */
     public String stem(String word) {
 

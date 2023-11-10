@@ -1,15 +1,18 @@
 package com.entopix.maui.main;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.entopix.maui.filters.MauiFilter;
 import com.entopix.maui.util.DataLoader;
 import com.entopix.maui.util.MauiDocument;
 import com.entopix.maui.util.MauiTopics;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates how to use Maui:  <br>
@@ -85,7 +88,8 @@ public class ExampleTest {
 		String testDir = "src/test/resources/data/automatic_tagging/test";
 
 		// name of the file to save the model
-		String modelName = "src/test/resources/data/models/test_tagging_model";
+		String modelName = "target/test/test_tagging_model";
+		Files.createDirectories(Paths.get(modelName).getParent());
 
 		// Settings for the model builder
 		modelBuilder.inputDirectoryName = trainDir;
@@ -127,13 +131,15 @@ public class ExampleTest {
 		// Directories with train & test data
 		String trainDir = "src/test/resources/data/term_assignment/train";
 		String testDir = "src/test/resources/data/term_assignment/test";
+		Path outputDir = Paths.get("target/test/term_assignment_output");
+		Files.createDirectories(outputDir);
 
 		// Vocabulary
 		String vocabulary = "src/test/resources/data/vocabularies/agrovoc_sample.rdf";
 		String format = "skos";
 
 		// name of the file to save the model
-		String modelName = "src/test/resources/data/models/test_assignment_model";
+		String modelName = "target/test/test_assignment_model";
 
 		// Settings for the model builder
 		modelBuilder.inputDirectoryName = trainDir;
@@ -157,7 +163,7 @@ public class ExampleTest {
 		topicExtractor.loadModel();
 		List<MauiDocument> testDocs = DataLoader.loadTestDocuments(testDir);
 		List<MauiTopics> allDocumentsTopics = topicExtractor.extractTopics(testDocs);
-		topicExtractor.printTopics(allDocumentsTopics);
+		topicExtractor.printTopics(allDocumentsTopics, outputDir);
 	}
 
 	@Test

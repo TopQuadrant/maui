@@ -273,7 +273,7 @@ public class MauiPhraseFilter extends Filter implements OptionHandler {
                 instVals[i] = (double) index;
             }
         }
-        Instance inst = new Instance(instance.weight(), instVals);
+        Instance inst = new DenseInstance(instance.weight(), instVals);
         inst.setDataset(getOutputFormat());
         push(inst);
     }

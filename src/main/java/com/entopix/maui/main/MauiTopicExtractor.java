@@ -1,14 +1,22 @@
 package com.entopix.maui.main;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.entopix.maui.filters.MauiFilter;
 import com.entopix.maui.filters.MauiFilter.MauiFilterException;
 import com.entopix.maui.stemmers.PorterStemmer;
@@ -23,10 +31,9 @@ import com.entopix.maui.util.Topic;
 import com.entopix.maui.vocab.Vocabulary;
 import com.entopix.maui.vocab.VocabularyStoreFactory;
 import com.entopix.maui.vocab.VocabularyStore_HT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import weka.core.Attribute;
+import weka.core.DenseInstance;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -483,16 +490,16 @@ public class MauiTopicExtractor implements OptionHandler {
 			if (document.getTextContent().length() > 0) {
 				newInst[1] = data.attribute(1).addStringValue(document.getTextContent());
 			} else {
-				newInst[1] = Instance.missingValue();
+				newInst[1] = Utils.missingValue();
 			}
 
 			if (document.getTopicsString().length() > 0) {
 				newInst[2] = data.attribute(2).addStringValue(document.getTopicsString());
 			} else {
-				newInst[2] = Instance.missingValue();
+				newInst[2] = Utils.missingValue();
 			}
 
-			data.add(new Instance(1.0, newInst));
+			data.add(new DenseInstance(1.0, newInst));
 
 			mauiFilter.input(data.instance(0));
 
@@ -579,28 +586,36 @@ public class MauiTopicExtractor implements OptionHandler {
 	}
 
 	public void printTopics(List<MauiTopics> allDocumentsTopics) {
-		FileOutputStream out = null;
-		PrintWriter printer = null;
+		printTopics(allDocumentsTopics, Paths.get(inputDirectoryName));
+	}
+
+	public void printTopics(List<MauiTopics> allDocumentsTopics, Path outputDirectory) {
+		Path inputDirectory = Paths.get(inputDirectoryName).toAbsolutePath();
 
 		for (MauiTopics documentTopics : allDocumentsTopics) { 
 			try {
-				out = new FileOutputStream(documentTopics.getFilePath().replace(".txt", ".maui"));
-				if (!documentEncoding.equals("default")) {
-					printer = new PrintWriter(new OutputStreamWriter(out, documentEncoding));
-				} else {
-					printer = new PrintWriter(out);
-				}
-
-				for (Topic topic : documentTopics.getTopics()) {
-					printer.print(topic.getTitle());
-					if (additionalInfo) {
-						printer.print("\t");
-						printer.print(topic.getProbability());
+				Path inFile = Paths.get(documentTopics.getFilePath());
+				String relativeFileName = inputDirectory.relativize(inFile).toString();
+				relativeFileName = FilenameUtils.removeExtension(relativeFileName) + ".maui";
+				Path outFile = outputDirectory.resolve(relativeFileName);
+				try (OutputStream out = Files.newOutputStream(outFile)) {
+					PrintWriter printer;
+					if (!documentEncoding.equals("default")) {
+						printer = new PrintWriter(new OutputStreamWriter(out, documentEncoding));
+					} else {
+						printer = new PrintWriter(out);
 					}
-					printer.println();
+					try (printer) {
+						for (Topic topic : documentTopics.getTopics()) {
+							printer.print(topic.getTitle());
+							if (additionalInfo) {
+								printer.print("\t");
+								printer.print(topic.getProbability());
+							}
+							printer.println();
+						}
+					}
 				}
-				printer.close();
-				out.close();
 			} catch (FileNotFoundException e) {
 				log.error(e.getMessage());
 			} catch (IOException e) {

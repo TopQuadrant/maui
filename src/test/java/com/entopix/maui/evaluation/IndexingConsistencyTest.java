@@ -42,7 +42,6 @@ public class IndexingConsistencyTest {
 		vocabulary.setStemmer(stemmer);
 		vocabulary.setLanguage(language);
 		vocabulary.setStopwords(stopwords);
-		vocabulary.setSerialize(true);
 		vocabulary.initializeVocabulary(vocabularyPath, vocabularyFormat);
     	
 

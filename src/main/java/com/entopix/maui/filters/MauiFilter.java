@@ -1,5 +1,6 @@
 package com.entopix.maui.filters;
 
+import java.util.ArrayList;
 /*
  *    MauiTopicExtractor.java
  *    Copyright (C) 2001-2014 Eibe Frank, Alyona Medelyan
@@ -19,12 +20,14 @@ package com.entopix.maui.filters;
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.entopix.maui.stemmers.PorterStemmer;
 import com.entopix.maui.stemmers.Stemmer;
@@ -35,19 +38,17 @@ import com.entopix.maui.util.Counter;
 import com.entopix.maui.vocab.Vocabulary;
 import com.entopix.maui.wikifeatures.WikiFeatures;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import weka.classifiers.AbstractClassifier;
+import weka.classifiers.meta.Bagging;
 import weka.core.Attribute;
 import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
+import weka.core.DenseInstance;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
-import weka.core.Capabilities.Capability;
 import weka.filters.Filter;
-import weka.classifiers.Classifier;
-import weka.classifiers.meta.Bagging;
 
 /**
  * This filter converts the incoming data into data appropriate for keyphrase
@@ -204,7 +205,7 @@ public class MauiFilter extends Filter {
 	/**
 	 * The actual classifier used to compute probabilities
 	 */
-	private Classifier classifier = null;
+	private AbstractClassifier classifier = null;
 
 	/**
 	 * The dictionary containing the document frequencies
@@ -277,7 +278,7 @@ public class MauiFilter extends Filter {
 		this.useBasicFeatures = useBasicFeatures;
 	}
 
-	public void setClassifier(Classifier classifier) {
+	public void setClassifier(AbstractClassifier classifier) {
 		this.classifier = classifier;
 	}
 
@@ -749,7 +750,7 @@ public class MauiFilter extends Filter {
 				} else {
 					countPos++;
 				}
-				Instance inst = new Instance(current.weight(), vals);
+				Instance inst = new DenseInstance(current.weight(), vals);
 				// log.info(candidate + "\t" + inst);
 				classifierData.add(inst);
 
@@ -1069,7 +1070,7 @@ public class MauiFilter extends Filter {
 			double[] vals = computeFeatureValues(candidate, training,
 					hashKeyphrases, candidateList);
 
-			Instance inst = new Instance(instance.weight(), vals);
+			Instance inst = new DenseInstance(instance.weight(), vals);
 
 			inst.setDataset(classifierData);
 
@@ -1133,7 +1134,7 @@ public class MauiFilter extends Filter {
 					newInst[pos++] = prob; // 16
 
 					// Set rank to missing (computed below)
-					newInst[pos++] = Instance.missingValue(); // 17
+					newInst[pos++] = Utils.missingValue(); // 17
 
 				} else if (i == keyphrasesAtt) {
 					newInst[pos++] = inst.classValue();
@@ -1142,7 +1143,7 @@ public class MauiFilter extends Filter {
 				}
 			}
 
-			Instance ins = new Instance(instance.weight(), newInst);
+			Instance ins = new DenseInstance(instance.weight(), newInst);
 			ins.setDataset(outputFormatPeek());
 			vector.addElement(ins);
 

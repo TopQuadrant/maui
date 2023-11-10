@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 //import org.apache.log4j.BasicConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.entopix.maui.filters.MauiFilter;
 import com.entopix.maui.filters.MauiFilter.MauiFilterException;
@@ -17,13 +19,13 @@ import com.entopix.maui.stopwords.StopwordsFactory;
 import com.entopix.maui.util.DataLoader;
 import com.entopix.maui.util.Topic;
 import com.entopix.maui.vocab.Vocabulary;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import weka.core.Attribute;
+import weka.core.DenseInstance;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.Utils;
 
 /**
  * This class shows how to use Maui on a single document or just a string of
@@ -157,8 +159,8 @@ public final class MauiWrapper {
 
         newInst[0] = data.attribute(0).addStringValue("inputFile");
         newInst[1] = data.attribute(1).addStringValue(text);
-        newInst[2] = Instance.missingValue();
-        data.add(new Instance(1.0, newInst));
+        newInst[2] = Utils.missingValue();
+        data.add(new DenseInstance(1.0, newInst));
 
         extractionModel.input(data.instance(0));
 
@@ -244,8 +246,8 @@ public final class MauiWrapper {
 
         newInst[0] = data.attribute(0).addStringValue("inputFile");
         newInst[1] = data.attribute(1).addStringValue(text);
-        newInst[2] = Instance.missingValue();
-        data.add(new Instance(1.0, newInst));
+        newInst[2] = Utils.missingValue();
+        data.add(new DenseInstance(1.0, newInst));
 
         extractionModel.input(data.instance(0));
 

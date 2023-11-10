@@ -23,7 +23,7 @@ public class FrenchExampleTest {
 		String testDir = "src/test/resources/data/term_assignment/test_fr";
 		
 		// name of the file for storing the model
-		String modelName = "src/test/resources/data/models/french_model";
+		String modelName = "target/test/french_model";
 		
 		// language specific settings
 		Stemmer stemmer = new FrenchStemmer();
@@ -51,7 +51,6 @@ public class FrenchExampleTest {
 		modelBuilder.stopwords = stopwords;
 		modelBuilder.documentLanguage = language;
 		modelBuilder.documentEncoding = encoding;
-		modelBuilder.serialize = true;
 		
 		// Which features to use?
 		modelBuilder.setBasicFeatures(true);
@@ -75,7 +74,6 @@ public class FrenchExampleTest {
 		topicExtractor.documentLanguage = language;
 		topicExtractor.topicsPerDocument = numTopicsToExtract; 
 		topicExtractor.cutOffTopicProbability = 0.0;
-		topicExtractor.serialize = true;
 		
 		// Run topic extractor
 		topicExtractor.loadModel();
